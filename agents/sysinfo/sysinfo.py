@@ -25,10 +25,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.)
 
-import datetime
 import os
 import psutil
 import zoe
+from datetime import datetime
 from os import environ as env
 from os.path import join as path
 from zoe.deco import *
@@ -36,6 +36,51 @@ from zoe.deco import *
 
 @Agent(name="sysinfo")
 class Sysinfo:
+
+    @Message(tags=["complete"])
+    def complete_report(self, user):
+        """ Send a complete report to user by mail. """
+
+    @Message(tags=["cpu"])
+    def info_cpu(self, user):
+        """ Send basic information on CPU usage by jabber. """
+        cpu_info = self.gather_cpu()
+
+        message = "CPU info (%s)\n" % str(datetime.today())
+
+        for cpu in cpu_info.keys():
+            info = cpu_info[cpu]
+
+            message += "--- %s ---\nUser: %s\nSystem: %s\nIdle: %s\n" % (
+                cpu, str(info["user"]), str(info["system"]),
+                str(info["idle"]))
+
+        return self.feedback(message, user, "jabber")
+
+    @Message(tags=["mem"])
+    def info_memory(self, user):
+        """ Send basic information on memory usage by jabber. """
+
+    @Message(tags=["disk"])
+    def info_disk(self, user):
+        """ Send basic information on disk usage by jabber. """
+
+    def feedback(self, message, user, relayto):
+        """ Send feedback to the user
+
+            message -- may be text or an attachment for e-mail
+            user -- user to send the feedback to
+            relayto -- either 'jabber' or 'mail'
+        """
+        to_send = {
+            "dst": "relay",
+            "tag": "relay",
+            "relayto": relayto,
+            "to": user,
+            "msg": message
+        }
+
+        return zoe.MessageBuilder(to_send)
 
     def gather_cpu(self):
         """ Gather information on system CPU.
@@ -121,7 +166,7 @@ class Sysinfo:
 
                 proc_data = process.as_dict(
                     attrs=["name", "exe", "username"])
-                
+
                 mem_info = process.memory_info()
                 proc_data["memory"] = {}
                 proc_data["memory"]["resident"] = mem_info.rss
