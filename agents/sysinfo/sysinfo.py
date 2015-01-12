@@ -47,14 +47,17 @@ class Sysinfo:
         """ Send basic information on CPU usage by jabber. """
         cpu_info = self.gather_cpu()
 
-        msg = "CPU info (%s)\n" % str(datetime.today())
+        msg = "CPU usage (%s)\n" % str(datetime.today())
 
         for cpu in cpu_info.keys():
             info = cpu_info[cpu]
 
-            msg += "--- %s ---\nUser: %s\nSystem: %s\nIdle: %s\n" % (
-                cpu, str(info["user"]), str(info["system"]),
-                str(info["idle"]))
+            msg += """--- %s ---
+                User: %s
+                System: %s
+                Idle: %s\n""" % (
+                    cpu, str(info["user"]), str(info["system"]),
+                    str(info["idle"]))
 
         return self.feedback(msg, user, "jabber")
 
@@ -68,13 +71,18 @@ class Sysinfo:
         """ Send basic information on memory usage by jabber. """
         mem_info = self.gather_memory()
 
-        msg = "Memory info (%s)\n" % str(datetime.today())
+        msg = "Memory usage (%s)\n" % str(datetime.today())
 
         for mem_type in mem_info.keys():
             info = mem_info[mem_type]
-            msg += "--- %s ---\nTotal: %s\nFree: %s\nUsed: %s\n%: %s\n" % (
-                mem_type, str(info["total"]), str(info["free"]),
-                str(info["used"]), str(info["percentage"]))
+
+            msg += """--- %s ---
+                Total: %s
+                Free: %s
+                Used: %s
+                Percentage: %s\n""" % (
+                    mem_type, str(info["total"]), str(info["free"]),
+                    str(info["used"]), str(info["percentage"]))
 
         return self.feedback(msg, user, "jabber")
 
