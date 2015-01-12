@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Install psutil package from PyPI
+pip install -t ${ZOE_HOME}/lib/python psutil

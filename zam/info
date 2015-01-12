@@ -1,0 +1,7 @@
+agent = sysinfo
+version = 0.1.0
+license = MIT
+maintainer = Rafael Medina García <rafamedgar@gmail.com>
+script = sysinfo.py
+topics =
+description = Obtain information on system processes and different resources
