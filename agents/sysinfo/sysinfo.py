@@ -40,30 +40,43 @@ class Sysinfo:
     @Message(tags=["complete"])
     def complete_report(self, user):
         """ Send a complete report to user by mail. """
+        pass
 
     @Message(tags=["cpu"])
     def info_cpu(self, user):
         """ Send basic information on CPU usage by jabber. """
         cpu_info = self.gather_cpu()
 
-        message = "CPU info (%s)\n" % str(datetime.today())
+        msg = "CPU info (%s)\n" % str(datetime.today())
 
         for cpu in cpu_info.keys():
             info = cpu_info[cpu]
 
-            message += "--- %s ---\nUser: %s\nSystem: %s\nIdle: %s\n" % (
+            msg += "--- %s ---\nUser: %s\nSystem: %s\nIdle: %s\n" % (
                 cpu, str(info["user"]), str(info["system"]),
                 str(info["idle"]))
 
-        return self.feedback(message, user, "jabber")
-
-    @Message(tags=["mem"])
-    def info_memory(self, user):
-        """ Send basic information on memory usage by jabber. """
+        return self.feedback(msg, user, "jabber")
 
     @Message(tags=["disk"])
     def info_disk(self, user):
         """ Send basic information on disk usage by jabber. """
+        pass
+
+    @Message(tags=["mem"])
+    def info_memory(self, user):
+        """ Send basic information on memory usage by jabber. """
+        mem_info = self.gather_memory()
+
+        msg = "Memory info (%s)\n" % str(datetime.today())
+
+        for mem_type in mem_info.keys():
+            info = mem_info[mem_type]
+            msg += "--- %s ---\nTotal: %s\nFree: %s\nUsed: %s\n%: %s\n" % (
+                mem_type, str(info["total"]), str(info["free"]),
+                str(info["used"]), str(info["percentage"]))
+
+        return self.feedback(msg, user, "jabber")
 
     def feedback(self, message, user, relayto):
         """ Send feedback to the user
