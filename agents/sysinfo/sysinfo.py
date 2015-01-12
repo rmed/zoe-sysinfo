@@ -64,7 +64,29 @@ class Sysinfo:
     @Message(tags=["disk"])
     def info_disk(self, user):
         """ Send basic information on disk usage by jabber. """
-        pass
+        disk_info = self.gather_disk()
+
+        msg = "Disk usage (%s)\n" % str(datetime.today())
+        print(disk_info.keys())
+
+        for disk in disk_info.keys():
+            info = disk_info[disk]
+            usage = disk_info[disk]["usage"]
+
+            msg += """--- %s ---
+                Mount point: %s
+                Filesystem type: %s
+                Options: %s
+                Usage:
+                - Total: %s
+                - Used: %s
+                - Free: %s
+                - Percentage used: %s\n""" % (
+                    disk, info["mountpoint"], info["fstype"], info["opts"],
+                    str(usage["total"]), str(usage["used"]),
+                    str(usage["free"]), str(usage["percentage"]))
+
+        return self.feedback(msg, user, "jabber")
 
     @Message(tags=["mem"])
     def info_memory(self, user):
@@ -80,7 +102,7 @@ class Sysinfo:
                 Total: %s
                 Free: %s
                 Used: %s
-                Percentage: %s\n""" % (
+                Percentage used: %s\n""" % (
                     mem_type, str(info["total"]), str(info["free"]),
                     str(info["used"]), str(info["percentage"]))
 
@@ -132,17 +154,17 @@ class Sysinfo:
         for partition in partitions:
             part_usage = psutil.disk_usage(partition.mountpoint)
 
-        result[partition.device] = {
-            "mountpoint": partition.mountpoint,
-            "fstype": partition.fstype,
-            "opts": partition.opts,
-            "usage": {
-                "total": part_usage.total,
-                "used": part_usage.used,
-                "free": part_usage.free,
-                "percentage": part_usage.percent
+            result[partition.device] = {
+                "mountpoint": partition.mountpoint,
+                "fstype": partition.fstype,
+                "opts": partition.opts,
+                "usage": {
+                    "total": part_usage.total,
+                    "used": part_usage.used,
+                    "free": part_usage.free,
+                    "percentage": part_usage.percent
+                }
             }
-        }
 
         return result
 
