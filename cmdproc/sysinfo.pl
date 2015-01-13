@@ -60,9 +60,9 @@ sub get {
   print("--d /show disk usage\n");
   print("--m /show memory usage\n");
 
-  print("--c /muestra uso /de cpu");
-  print("--d /muestra uso /de disco");
-  print("--m /muestra uso /de memoria");
+  print("--c /muestra uso /de cpu\n");
+  print("--d /muestra uso /de disco\n");
+  print("--m /muestra uso /de memoria\n");
 }
 
 #
