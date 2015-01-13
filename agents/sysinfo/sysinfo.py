@@ -40,7 +40,8 @@ class Sysinfo:
     @Message(tags=["complete"])
     def complete_report(self, user):
         """ Send a complete report to user by mail. """
-        pass
+        msg = "Not yet implemented"
+        return self.feedback(msg, user, "jabber")
 
     @Message(tags=["cpu"])
     def info_cpu(self, user):
@@ -177,7 +178,6 @@ class Sysinfo:
         mem_info = psutil.virtual_memory()
         swap_info = psutil.swap_memory()
 
-        # RAM
         result["ram"] = {
             "total": mem_info.total,
             "free": mem_info.available,
@@ -185,7 +185,6 @@ class Sysinfo:
             "percentage": mem_info.percent
         }
 
-        # SWAP
         result["swap"] = {
             "total": swap_info.total,
             "free": swap_info.free,
