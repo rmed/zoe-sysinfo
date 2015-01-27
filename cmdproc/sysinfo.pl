@@ -31,6 +31,7 @@ my $run;
 my $cpu;
 my $disk;
 my $mem;
+my $report;
 
 my $sender;
 
@@ -39,7 +40,8 @@ GetOptions("get" => \$get,
            "msg-sender-uniqueid=s" => \$sender,
            "c" => \$cpu,
            "d" => \$disk,
-           "m" => \$mem);
+           "m" => \$mem,
+           "r" => \$report);
 
 if ($get) {
   &get;
@@ -49,6 +51,8 @@ if ($get) {
   &disk;
 } elsif ($run and $mem) {
   &mem;
+} elsif ($run and $report) {
+  &report;
 }
 
 
@@ -59,10 +63,12 @@ sub get {
   print("--c /show cpu usage\n");
   print("--d /show disk usage\n");
   print("--m /show memory usage\n");
+  print("--r /send /complete report\n");
 
   print("--c /muestra uso /de cpu\n");
   print("--d /muestra uso /de disco\n");
   print("--m /muestra uso /de memoria\n");
+  print("--r /manda informe /completo\n");
 }
 
 #
@@ -84,4 +90,11 @@ sub disk {
 #
 sub mem {
   print("message dst=sysinfo&tag=mem&user=$sender\n");
+}
+
+#
+# Complete report send to email
+#
+sub report {
+  print("message dst=sysinfo&tag=report&user=$sender\n");
 }

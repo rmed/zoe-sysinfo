@@ -25,6 +25,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.)
 
+import base64
 import os
 import psutil
 import zoe
@@ -34,14 +35,132 @@ from os.path import join as path
 from zoe.deco import *
 
 
+HTML_HEADER = """
+<html>
+<head>
+<style>
+h2 {
+    border-bottom: 1px solid #CCCCCC;
+    margin-top: 20px;
+    width: 100%;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 5px;
+}
+</style>
+</head><body>"""
+HTML_FOOTER = "</body></html>"
+SYSINFO_ETC = path(env["ZOE_HOME"], "etc", "sysinfo")
+
+
 @Agent(name="sysinfo")
 class Sysinfo:
 
-    @Message(tags=["complete"])
+    @Message(tags=["report"])
     def complete_report(self, user):
         """ Send a complete report to user by mail. """
-        msg = "Not yet implemented"
-        return self.feedback(msg, user, "jabber")
+        HTML = "" + HTML_HEADER
+
+        # CPU
+        cpu_html = "<h2>CPU Information</h2><ul>"
+        cpu_info = self.gather_cpu()
+
+        for cpu in cpu_info.keys():
+            info = cpu_info[cpu]
+
+            cpu_html += """
+                <li>%s<ul>
+                    <li>User: %s</li>
+                    <li>System: %s</li>
+                    <li>Idle: %s</li>
+                </ul></li>""" % (
+                    cpu.upper(), str(info["user"]),
+                    str(info["system"]), str(info["idle"]))
+
+        cpu_html += "</ul>"
+
+        # Disks
+        disk_html = "<h2>Disk Information</h2><ul>"
+        disk_info = self.gather_disk()
+
+        for disk in disk_info.keys():
+            info = disk_info[disk]
+            usage = disk_info[disk]["usage"]
+
+            disk_html += """
+                <li>%s<ul>
+                    <li>Mount point: %s</li>
+                    <li>Filesystem: %s</li>
+                    <li>Options: %s</li>
+                    <li>Usage:<ul>
+                        <li>Total: %s</li>
+                        <li>Used: %s</li>
+                        <li>Free: %s</li>
+                        <li>Percentage used: %s</li>
+                    </ul></li>
+                </ul></li>""" % (
+                    disk, info["mountpoint"], info["fstype"], info["opts"],
+                    str(usage["total"]), str(usage["used"]),
+                    str(usage["free"]), str(usage["percentage"]))
+
+        disk_html += "</ul>"
+
+        # Memory
+        mem_html = "<h2>Memory Information</h2><ul>"
+        mem_info = self.gather_memory()
+
+        for mem_type in mem_info.keys():
+            info = mem_info[mem_type]
+
+            mem_html += """
+                <li>%s<ul>
+                    <li>Total: %s</li>
+                    <li>Free: %s</li>
+                    <li>Used: %s</li>
+                    <li>Percentage used: %s</li>
+                </ul></li>""" % (
+                    mem_type.title(), str(info["total"]), str(info["free"]),
+                    str(info["used"]), str(info["percentage"]))
+
+        mem_html += "</ul>"
+
+        # Processes
+        proc_html = "<h2>Running processes Information</h2><table>"
+        proc_html += """<tr>
+            <th>PID</th>
+            <th>Name</th>
+            <th>User</th>
+            <th>Status</th>
+            <th>Exec</th>
+            <th>Resident Memory</th>
+            <th>Virtual Memory</th></tr>"""
+        proc_info = self.gather_proc()
+
+        for proc in proc_info.keys():
+            info = proc_info[proc]
+
+            proc_html += """<tr>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td>
+                <td>%s</td></tr>""" % (str(proc), str(info["name"]),
+                    str(info["username"]), str(info["status"]),
+                    str(info["exe"]), str(info["memory"]["resident"]),
+                    str(info["memory"]["virtual"]))
+
+        proc_html += "</table>"
+
+        HTML += cpu_html + disk_html + mem_html + proc_html + HTML_FOOTER
+
+        attachment = self.attach_html(HTML)
+
+        return (self.feedback("Generating report...", user, "jabber"),
+                self.feedback(attachment, user, "mail"))
 
     @Message(tags=["cpu"])
     def info_cpu(self, user):
@@ -109,10 +228,30 @@ class Sysinfo:
 
         return self.feedback(msg, user, "jabber")
 
-    def feedback(self, message, user, relayto):
+    def attach_html(self, html):
+        """ Build the attachment file.
+
+            This file is stored in ZOE_HOME/etc/sysinfo.
+        """
+        now = datetime.today()
+        filename = "%s_%s_%s_%s_%s_%s.html" % (
+            str(now.day), str(now.month), str(now.year),
+            str(now.hour), str(now.minute), str(now.second))
+        filepath = path(SYSINFO_ETC, filename)
+
+        with open(filepath, "w") as f:
+            f.write(html)
+
+        with open(filepath, "rb") as f:
+            data = f.read()
+
+        b64 = base64.standard_b64encode(data).decode("utf-8")
+        return zoe.Attachment(b64, "text/html", filename)
+
+    def feedback(self, data, user, relayto):
         """ Send feedback to the user
 
-            message -- may be text or an attachment for e-mail
+            data -- may be text or an attachment for e-mail
             user -- user to send the feedback to
             relayto -- either 'jabber' or 'mail'
         """
@@ -121,8 +260,13 @@ class Sysinfo:
             "tag": "relay",
             "relayto": relayto,
             "to": user,
-            "msg": message
         }
+
+        if relayto == "jabber":
+            to_send["msg"] = data
+        else:
+            to_send["html"] = data.str()
+            to_send["subject"] = "System information report"
 
         return zoe.MessageBuilder(to_send)
 
@@ -207,7 +351,7 @@ class Sysinfo:
                 process = psutil.Process(proc.pid)
 
                 proc_data = process.as_dict(
-                    attrs=["name", "exe", "username"])
+                    attrs=["name", "exe", "username", "status"])
 
                 mem_info = process.memory_info()
                 proc_data["memory"] = {}
