@@ -52,8 +52,7 @@ table {
 </style>
 </head><body>"""
 HTML_FOOTER = "</body></html>"
-SYSINFO_ETC = path(env["ZOE_HOME"], "etc", "sysinfo")
-
+SYSINFO_CONF = path(env["ZOE_HOME"], "etc", "sysinfo.conf")
 
 @Agent(name="sysinfo")
 class Sysinfo:
@@ -231,13 +230,19 @@ class Sysinfo:
     def attach_html(self, html):
         """ Build the attachment file.
 
-            This file is stored in ZOE_HOME/etc/sysinfo.
+            This file is stored in the directory specified in
+            ZOE_HOME/etc/sysinfo.conf (the directory must exist previously)
         """
         now = datetime.today()
+
         filename = "%s_%s_%s_%s_%s_%s.html" % (
             str(now.day), str(now.month), str(now.year),
             str(now.hour), str(now.minute), str(now.second))
-        filepath = path(SYSINFO_ETC, filename)
+
+        with open(SYSINFO_CONF, "r") as conf:
+            base_path = conf.readline().rstrip()
+
+        filepath = path(base_path, filename)
 
         with open(filepath, "w") as f:
             f.write(html)
@@ -246,6 +251,7 @@ class Sysinfo:
             data = f.read()
 
         b64 = base64.standard_b64encode(data).decode("utf-8")
+
         return zoe.Attachment(b64, "text/html", filename)
 
     def feedback(self, data, user, relayto):
