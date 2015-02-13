@@ -3,6 +3,8 @@ zoe-sysinfo
 
 System and usage information gathering for Zoe
 
+![Agent version](https://img.shields.io/badge/Zoe_Agent-0.2.1-blue.svg "Zoe sysinfo")
+
 Funtionality
 ------------
 
