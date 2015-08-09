@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Install required packages from PyPI
+pip3 install -t ${ZOE_HOME}/agents/sysinfo/lib psutil

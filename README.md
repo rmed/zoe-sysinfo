@@ -1,12 +1,9 @@
-zoe-sysinfo
-===========
+# zoe-sysinfo ![Agent version](https://img.shields.io/badge/Zoe_Agent-0.3.0-blue.svg "Zoe sysinfo")
 
 System and usage information gathering for Zoe
 
-![Agent version](https://img.shields.io/badge/Zoe_Agent-0.2.1-blue.svg "Zoe sysinfo")
 
-Funtionality
-------------
+## Funtionality
 
 Right now, the agent obtains information on:
 

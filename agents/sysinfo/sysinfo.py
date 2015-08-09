@@ -26,7 +26,6 @@
 # SOFTWARE.)
 
 import base64
-import os
 import psutil
 import zoe
 from datetime import datetime
@@ -52,7 +51,7 @@ table {
 </style>
 </head><body>"""
 HTML_FOOTER = "</body></html>"
-SYSINFO_CONF = path(env["ZOE_HOME"], "etc", "sysinfo.conf")
+
 
 @Agent(name="sysinfo")
 class Sysinfo:
@@ -235,22 +234,11 @@ class Sysinfo:
         """
         now = datetime.today()
 
-        filename = "%s_%s_%s_%s_%s_%s.html" % (
+        filename = "sysinfo_%s_%s_%s_%s_%s_%s.html" % (
             str(now.day), str(now.month), str(now.year),
             str(now.hour), str(now.minute), str(now.second))
 
-        with open(SYSINFO_CONF, "r") as conf:
-            base_path = conf.readline().rstrip()
-
-        filepath = path(base_path, filename)
-
-        with open(filepath, "w") as f:
-            f.write(html)
-
-        with open(filepath, "rb") as f:
-            data = f.read()
-
-        b64 = base64.standard_b64encode(data).decode("utf-8")
+        b64 = base64.standard_b64encode(bytes(html, 'utf-8')).decode('utf-8')
 
         return zoe.Attachment(b64, "text/html", filename)
 
@@ -263,13 +251,13 @@ class Sysinfo:
         """
         to_send = {
             "dst": "relay",
-            "tag": "relay",
             "relayto": relayto,
-            "to": user,
+            "to": user
         }
 
         if relayto == "jabber":
             to_send["msg"] = data
+
         else:
             to_send["html"] = data.str()
             to_send["subject"] = "System information report"

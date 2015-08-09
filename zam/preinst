@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-# Install required packages from PyPI
-pip install -t ${ZOE_HOME}/lib/python psutil
-
-# Create config file (initially, configuration points to /tmp)
-echo "/tmp" > ${ZOE_HOME}/etc/sysinfo.conf
