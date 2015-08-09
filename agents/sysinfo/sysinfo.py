@@ -186,7 +186,6 @@ class Sysinfo:
         disk_info = self.gather_disk()
 
         msg = "Disk usage (%s)\n" % str(datetime.today())
-        print(disk_info.keys())
 
         for disk in disk_info.keys():
             info = disk_info[disk]
@@ -289,7 +288,7 @@ class Sysinfo:
             Obtains mounted disk partitions and their usage statistics.
         """
         result = {}
-        partitions = psutil.disk_partitions()
+        partitions = psutil.disk_partitions(all=True)
 
         for partition in partitions:
             part_usage = psutil.disk_usage(partition.mountpoint)
