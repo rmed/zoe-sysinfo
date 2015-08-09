@@ -25,12 +25,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.)
 
+import sys
+sys.path.append('./lib')
+
 import base64
 import psutil
 import zoe
 from datetime import datetime
-from os import environ as env
-from os.path import join as path
 from zoe.deco import *
 
 
