@@ -1,4 +1,4 @@
-# zoe-sysinfo ![Agent version](https://img.shields.io/badge/Zoe_Agent-0.3.0-blue.svg "Zoe sysinfo")
+# zoe-sysinfo ![Agent version](https://img.shields.io/badge/Zoe_Agent-0.3.1-blue.svg "Zoe sysinfo")
 
 System and usage information gathering for Zoe
 

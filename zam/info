@@ -1,5 +1,5 @@
 agent = sysinfo
-version = 0.3.0
+version = 0.3.1
 license = MIT
 maintainer = Rafael Medina García <rafamedgar@gmail.com>
 script = sysinfo.py
