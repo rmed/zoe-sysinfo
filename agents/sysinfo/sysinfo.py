@@ -71,9 +71,9 @@ class Sysinfo:
 
             cpu_html += """
                 <li>%s<ul>
-                    <li>User: %s</li>
-                    <li>System: %s</li>
-                    <li>Idle: %s</li>
+                    <li>User: %s %%</li>
+                    <li>System: %s %%</li>
+                    <li>Idle: %s %%</li>
                 </ul></li>""" % (
                     cpu.upper(), str(info["user"]),
                     str(info["system"]), str(info["idle"]))
@@ -97,12 +97,17 @@ class Sysinfo:
                         <li>Total: %s</li>
                         <li>Used: %s</li>
                         <li>Free: %s</li>
-                        <li>Percentage used: %s</li>
+                        <li>Percentage used: %s %%</li>
                     </ul></li>
                 </ul></li>""" % (
-                    disk, info["mountpoint"], info["fstype"], info["opts"],
-                    str(usage["total"]), str(usage["used"]),
-                    str(usage["free"]), str(usage["percentage"]))
+                    disk,
+                    info["mountpoint"],
+                    info["fstype"],
+                    info["opts"],
+                    self.size_fmt(usage["total"]),
+                    self.size_fmt(usage["used"]),
+                    self.size_fmt(usage["free"]),
+                    str(usage["percentage"]))
 
         disk_html += "</ul>"
 
@@ -120,8 +125,11 @@ class Sysinfo:
                     <li>Used: %s</li>
                     <li>Percentage used: %s</li>
                 </ul></li>""" % (
-                    mem_type.title(), str(info["total"]), str(info["free"]),
-                    str(info["used"]), str(info["percentage"]))
+                    mem_type.title(),
+                    self.size_fmt(info["total"]),
+                    self.size_fmt(info["free"]),
+                    self.size_fmt(info["used"]),
+                    str(info["percentage"]))
 
         mem_html += "</ul>"
 
@@ -147,10 +155,14 @@ class Sysinfo:
                 <td>%s</td>
                 <td>%s</td>
                 <td>%s</td>
-                <td>%s</td></tr>""" % (str(proc), str(info["name"]),
-                    str(info["username"]), str(info["status"]),
-                    str(info["exe"]), str(info["memory"]["resident"]),
-                    str(info["memory"]["virtual"]))
+                <td>%s</td></tr>""" % (
+                    str(proc),
+                    str(info["name"]),
+                    str(info["username"]),
+                    str(info["status"]),
+                    str(info["exe"]),
+                    self.size_fmt(info["memory"]["resident"]),
+                    self.size_fmt(info["memory"]["virtual"]))
 
         proc_html += "</table>"
 
@@ -171,11 +183,12 @@ class Sysinfo:
         for cpu in cpu_info.keys():
             info = cpu_info[cpu]
 
-            msg += """--- %s ---
-                User: %s
-                System: %s
-                Idle: %s\n""" % (
-                    cpu, str(info["user"]), str(info["system"]),
+            msg += """  %s  
+                --------
+                User: %s %%
+                System: %s %%
+                Idle: %s %%\n\n""" % (
+                    cpu.upper(), str(info["user"]), str(info["system"]),
                     str(info["idle"]))
 
         return self.feedback(msg, user, "jabber")
@@ -191,7 +204,8 @@ class Sysinfo:
             info = disk_info[disk]
             usage = disk_info[disk]["usage"]
 
-            msg += """--- %s ---
+            msg += """  %s  
+                --------
                 Mount point: %s
                 Filesystem type: %s
                 Options: %s
@@ -199,10 +213,12 @@ class Sysinfo:
                 - Total: %s
                 - Used: %s
                 - Free: %s
-                - Percentage used: %s\n""" % (
+                - Percentage used: %s %%\n\n""" % (
                     disk, info["mountpoint"], info["fstype"], info["opts"],
-                    str(usage["total"]), str(usage["used"]),
-                    str(usage["free"]), str(usage["percentage"]))
+                    self.size_fmt(usage["total"]),
+                    self.size_fmt(usage["used"]),
+                    self.size_fmt(usage["free"]),
+                    str(usage["percentage"]))
 
         return self.feedback(msg, user, "jabber")
 
@@ -216,13 +232,17 @@ class Sysinfo:
         for mem_type in mem_info.keys():
             info = mem_info[mem_type]
 
-            msg += """--- %s ---
+            msg += """  %s  
+                --------
                 Total: %s
                 Free: %s
                 Used: %s
-                Percentage used: %s\n""" % (
-                    mem_type, str(info["total"]), str(info["free"]),
-                    str(info["used"]), str(info["percentage"]))
+                Percentage used: %s %%\n\n""" % (
+                    mem_type,
+                    self.size_fmt(info["total"]),
+                    self.size_fmt(info["free"]),
+                    self.size_fmt(info["used"]),
+                    str(info["percentage"]))
 
         return self.feedback(msg, user, "jabber")
 
@@ -358,3 +378,16 @@ class Sysinfo:
                 continue
 
         return result
+
+    def size_fmt(self, num):
+        """ Represents amount of bytes in a better human-readable way.
+
+            Obtained from http://stackoverflow.com/a/1094933
+        """
+        for unit in ['B','KiB','MiB','GiB','TiB','PiB','EiB','ZiB']:
+            if abs(num) < 1024.0:
+                return "%3.1f%s" % (num, unit)
+
+            num /= 1024.0
+
+        return "%.1f%s%s" % (num, 'YiB')
