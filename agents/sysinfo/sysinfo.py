@@ -178,7 +178,7 @@ class Sysinfo:
         """ Send basic information on CPU usage by jabber. """
         cpu_info = self.gather_cpu()
 
-        msg = "CPU usage (%s)\n" % str(datetime.today())
+        msg = "CPU usage (%s)\n" % self.current_datetime()
 
         for cpu in cpu_info.keys():
             info = cpu_info[cpu]
@@ -198,7 +198,7 @@ class Sysinfo:
         """ Send basic information on disk usage by jabber. """
         disk_info = self.gather_disk()
 
-        msg = "Disk usage (%s)\n" % str(datetime.today())
+        msg = "Disk usage (%s)\n" % self.current_datetime()
 
         for disk in disk_info.keys():
             info = disk_info[disk]
@@ -227,7 +227,7 @@ class Sysinfo:
         """ Send basic information on memory usage by jabber. """
         mem_info = self.gather_memory()
 
-        msg = "Memory usage (%s)\n" % str(datetime.today())
+        msg = "Memory usage (%s)\n" % self.current_datetime()
 
         for mem_type in mem_info.keys():
             info = mem_info[mem_type]
@@ -261,6 +261,12 @@ class Sysinfo:
         b64 = base64.standard_b64encode(bytes(html, 'utf-8')).decode('utf-8')
 
         return zoe.Attachment(b64, "text/html", filename)
+
+    def current_datetime(self):
+        """ Return the current date and time in human-readable format. """
+        now = datetime.today()
+
+        return now.strftime("%d/%m/%Y - %H:%M:%S")
 
     def feedback(self, data, user, relayto):
         """ Send feedback to the user
@@ -386,8 +392,8 @@ class Sysinfo:
         """
         for unit in ['B','KiB','MiB','GiB','TiB','PiB','EiB','ZiB']:
             if abs(num) < 1024.0:
-                return "%3.1f%s" % (num, unit)
+                return "%3.1f %s" % (num, unit)
 
             num /= 1024.0
 
-        return "%.1f%s%s" % (num, 'YiB')
+        return "%.1f %s" % (num, 'YiB')
