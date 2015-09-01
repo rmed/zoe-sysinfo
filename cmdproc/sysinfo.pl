@@ -34,14 +34,16 @@ my $mem;
 my $report;
 
 my $sender;
+my $src;
 
-GetOptions("get" => \$get,
-           "run" => \$run,
-           "msg-sender-uniqueid=s" => \$sender,
-           "c" => \$cpu,
-           "d" => \$disk,
-           "m" => \$mem,
-           "r" => \$report);
+GetOptions("get"                    => \$get,
+           "run"                    => \$run,
+           "msg-sender-uniqueid=s"  => \$sender,
+           "msg-src=s"              => \$src,
+           "c"                      => \$cpu,
+           "d"                      => \$disk,
+           "m"                      => \$mem,
+           "r"                      => \$report);
 
 if ($get) {
   &get;
@@ -75,26 +77,26 @@ sub get {
 # Basic information on CPU usage
 #
 sub cpu {
-  print("message dst=sysinfo&tag=cpu&user=$sender\n");
+  print("message dst=sysinfo&tag=cpu&sender=$sender&src=$src\n");
 }
 
 #
 # Basic information on disk usage
 #
 sub disk {
-  print("message dst=sysinfo&tag=disk&user=$sender\n");
+  print("message dst=sysinfo&tag=disk&sender=$sender&src=$src\n");
 }
 
 #
 # Basic information on memory usage
 #
 sub mem {
-  print("message dst=sysinfo&tag=mem&user=$sender\n");
+  print("message dst=sysinfo&tag=mem&sender=$sender&src=$src\n");
 }
 
 #
-# Complete report send to email
+# Complete report sent to email
 #
 sub report {
-  print("message dst=sysinfo&tag=report&user=$sender\n");
+  print("message dst=sysinfo&tag=report&sender=$sender&src=$src\n");
 }

@@ -58,7 +58,7 @@ HTML_FOOTER = "</body></html>"
 class Sysinfo:
 
     @Message(tags=["report"])
-    def complete_report(self, user):
+    def complete_report(self, sender, src):
         """ Send a complete report to user by mail. """
         HTML = "" + HTML_HEADER
 
@@ -170,11 +170,11 @@ class Sysinfo:
 
         attachment = self.attach_html(HTML)
 
-        return (self.feedback("Generating report...", user, "jabber"),
-                self.feedback(attachment, user, "mail"))
+        return (self.feedback("Generating report...", sender, src),
+                self.feedback(attachment, sender, "mail"))
 
     @Message(tags=["cpu"])
-    def info_cpu(self, user):
+    def info_cpu(self, sender, src):
         """ Send basic information on CPU usage by jabber. """
         cpu_info = self.gather_cpu()
 
@@ -191,10 +191,10 @@ class Sysinfo:
                     cpu.upper(), str(info["user"]), str(info["system"]),
                     str(info["idle"]))
 
-        return self.feedback(msg, user, "jabber")
+        return self.feedback(msg, sender, src)
 
     @Message(tags=["disk"])
-    def info_disk(self, user):
+    def info_disk(self, sender, src):
         """ Send basic information on disk usage by jabber. """
         disk_info = self.gather_disk()
 
@@ -220,10 +220,10 @@ class Sysinfo:
                     self.size_fmt(usage["free"]),
                     str(usage["percentage"]))
 
-        return self.feedback(msg, user, "jabber")
+        return self.feedback(msg, sender, src)
 
     @Message(tags=["mem"])
-    def info_memory(self, user):
+    def info_memory(self, sender, src):
         """ Send basic information on memory usage by jabber. """
         mem_info = self.gather_memory()
 
@@ -244,7 +244,7 @@ class Sysinfo:
                     self.size_fmt(info["used"]),
                     str(info["percentage"]))
 
-        return self.feedback(msg, user, "jabber")
+        return self.feedback(msg, sender, src)
 
     def attach_html(self, html):
         """ Build the attachment file.
@@ -268,20 +268,20 @@ class Sysinfo:
 
         return now.strftime("%d/%m/%Y - %H:%M:%S")
 
-    def feedback(self, data, user, relayto):
+    def feedback(self, data, user, dst):
         """ Send feedback to the user
 
             data -- may be text or an attachment for e-mail
             user -- user to send the feedback to
-            relayto -- either 'jabber' or 'mail'
+            dst  -- either 'jabber', 'tg' or 'mail'
         """
         to_send = {
             "dst": "relay",
-            "relayto": relayto,
+            "relayto": dst,
             "to": user
         }
 
-        if relayto == "jabber":
+        if dst == "jabber" or dst == "tg":
             to_send["msg"] = data
 
         else:
