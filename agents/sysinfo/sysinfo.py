@@ -175,7 +175,7 @@ class Sysinfo:
 
     @Message(tags=["cpu"])
     def info_cpu(self, sender, src):
-        """ Send basic information on CPU usage by jabber. """
+        """ Send basic information on CPU usage jabber or Telegram. """
         cpu_info = self.gather_cpu()
 
         msg = "CPU usage (%s)\n" % self.current_datetime()
@@ -195,7 +195,7 @@ class Sysinfo:
 
     @Message(tags=["disk"])
     def info_disk(self, sender, src):
-        """ Send basic information on disk usage by jabber. """
+        """ Send basic information on disk usage by jabber or Telegram. """
         disk_info = self.gather_disk()
 
         msg = "Disk usage (%s)\n" % self.current_datetime()
@@ -224,7 +224,7 @@ class Sysinfo:
 
     @Message(tags=["mem"])
     def info_memory(self, sender, src):
-        """ Send basic information on memory usage by jabber. """
+        """ Send basic information on memory usage by jabber or Telegram. """
         mem_info = self.gather_memory()
 
         msg = "Memory usage (%s)\n" % self.current_datetime()

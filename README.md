@@ -1,4 +1,4 @@
-# zoe-sysinfo ![Agent version](https://img.shields.io/badge/Zoe_Agent-0.3.1-blue.svg "Zoe sysinfo")
+# zoe-sysinfo ![Agent version](https://img.shields.io/badge/Zoe_Agent-0.3.2-blue.svg "Zoe sysinfo")
 
 System and usage information gathering for Zoe
 
@@ -12,4 +12,5 @@ Right now, the agent obtains information on:
 - Memory usage (RAM and SWAP)
 - Running processes information (only in complete report)
 
-This information is asked for through jabber. A report in HTML can also be generated and sent through email.
+This information is asked for through jabber or Telegram. A report in HTML can
+also be generated and sent through email.
